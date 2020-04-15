@@ -37,17 +37,43 @@ def playerMove(board):
         move = input()
     return int(move)
 
-def computerMove(board):
-    move = random.randint(1,9)
+def computerMove(board, pl):
+    move = ' '
     while not validMove(board,move):
-        move = random.randint(1,9)
+        if (winningMove := checkforWinningMove(board, pl)):
+            move = winningMove
+        elif validMove(board, 5):
+            move = 5 
+        else:
+            move = random.randint(1,9)
     return move
+
+def dupeBoard(board):
+    dupeBoard = []
+    for i in board:
+        dupeBoard.append(i)
+    return dupeBoard
+
+def checkforWinningMove(board, pl):
+    for i in range(1,10):
+        dupe = dupeBoard(board)
+        makeMove(dupe, pl, i)
+        if checkWin(dupe, pl) and validMove(dupe, i):
+            return i 
+
+def isBoardFull(board):
+    for i in range(1,10):
+        if validMove(board, i):
+            return False
+    print("Stalemate")
+    return True 
 
 def winCondition(player):
     print('{0} won the game'.format(player))
 
 def validMove(board,move):
-    print(move)
+    if move == ' ':
+        return False
     return board[int(move)] == ' '
 
 def playAgain():
@@ -74,20 +100,22 @@ while True:
         print("Computer goes first") 
     gameActive = True
     while gameActive == True:
+        printBoard(board)
         if whoseTurn == 'human':
-            printBoard(board)
+            if isBoardFull(board):
+                gameActive = False
             move = playerMove(board)
             makeMove(board, playerLetters[0], move)
-            printBoard(board)
             if not checkWin(board, playerLetters[0]):
                 whoseTurn = 'computer'
             else:
                 winCondition(whoseTurn)
                 gameActive = False
         else:
-            move = computerMove(board)
+            if isBoardFull(board):
+                gameActive = False
+            move = computerMove(board, playerLetters[1])
             makeMove(board,playerLetters[1], int(move))
-            printBoard(board)
             if not checkWin(board, playerLetters[1]):
                 whoseTurn = 'human'
             else:
@@ -95,6 +123,9 @@ while True:
                 gameActive = False 
     if not playAgain():
         break     
+
+
+
 
 
 
